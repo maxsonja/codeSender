@@ -14,15 +14,37 @@ const byte saveNumb = 10;
 dataFormat newData;
 dataFormat save[saveNumb];
 
+byte readBit(byte nub, byte input)
+{
+  input = input<<(7-nub);
+  input = input>>7;
+  return input;
+}
 
+String bitString(String &input)
+{
+  String result;
+  for(int l = 0; l<input.length(); l++) {
+  for(int i = 0; i<8;i++)
+  {
+    if(readBit((7-i),input.charAt(l))){result+='1';}
+    else {result+='0';}    
+  }
+  }
+  return result;
+}
 
 void sendData (struct dataFormat &inData)
 {
-  Serial.print("sending '");
-  char data[inData.data.length()+1];
-  inData.data.toCharArray(data,inData.data.length()+1);
-  for(int i = 0; i<inData.data.length(); i++) Serial.print(data[i]);
-  Serial.println("'");
+  Serial.print("sending: <|");
+  String tempData = bitString(inData.data);
+  char data[tempData.length()+1];
+  tempData.toCharArray(data,tempData.length()+1);
+  Serial.print(inData.data);
+  Serial.print(" | ");
+  Serial.print(tempData);
+  Serial.println(" |>");
+  mySwitch.send(data);
 
 }
 
@@ -171,6 +193,7 @@ void printData(dataFormat &inData)
 void setup()
 {
   Serial.begin(9600);
+  mySwitch.enableTransmit(12);
   for(int i = 0;i<saveNumb;i++) save[i]=newData;
 }
 
